@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sharker · Launch Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --abyss:#050e0c;        /* deep shark-water */
+    --abyss-2:#081512;
+    --panel:#0b1a16;
+    --panel-2:#0f231d;
+    --line:#173029;
+    --aqua:#2fe0c6;         /* bioluminescent live accent */
+    --aqua-dim:#1b7d6f;
+    --gold:#f5c451;         /* the prize */
+    --gold-2:#c9962f;
+    --coral:#ff6b5e;
+    --text:#eaf4f0;
+    --muted:#6f867d;
+    --stamp:rgba(245,196,81,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 82% -8%, rgba(47,224,198,.10), transparent 58%),
+      radial-gradient(900px 520px at -6% 4%, rgba(245,196,81,.06), transparent 52%),
+      var(--abyss);
+    color:var(--text);
+    font-family:"Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .shell{max-width:960px;margin:0 auto;padding:26px 20px 80px}
+
+  /* ---------- top bar ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .logo{display:flex;align-items:center;gap:11px;font-family:"Sora";font-weight:800;letter-spacing:-.01em;font-size:19px}
+  .fin{width:26px;height:26px;color:var(--aqua);flex:none;filter:drop-shadow(0 0 10px rgba(47,224,198,.5))}
+  .live{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono";font-size:12px;letter-spacing:.12em;color:var(--aqua);text-transform:uppercase}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--aqua);box-shadow:0 0 0 0 rgba(47,224,198,.6);animation:beat 1.8s infinite}
+  @keyframes beat{0%{box-shadow:0 0 0 0 rgba(47,224,198,.55)}70%{box-shadow:0 0 0 9px rgba(47,224,198,0)}100%{box-shadow:0 0 0 0 rgba(47,224,198,0)}}
+
+  /* ---------- hero ---------- */
+  .hero{margin:38px 0 30px;text-align:center}
+  .prize-chip{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:"JetBrains Mono";font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);border:1px solid var(--gold-2);background:var(--stamp);
+    padding:7px 14px;border-radius:999px;margin-bottom:22px;
+  }
+  h1.head{
+    font-family:"Sora";font-weight:800;line-height:1.03;letter-spacing:-.025em;
+    font-size:clamp(30px,7vw,58px);margin:0;
+  }
+  h1.head .g{background:linear-gradient(180deg,#fff 0%,var(--gold) 60%,var(--gold-2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1.head .a{color:var(--aqua)}
+  .subhead{color:var(--muted);margin:16px auto 0;max-width:52ch;font-size:15px}
+
+  /* ---------- counter ---------- */
+  .counter{
+    margin:34px auto 8px;display:flex;align-items:baseline;justify-content:center;gap:14px;
+  }
+  .counter .n{
+    font-family:"Sora";font-weight:800;font-size:clamp(48px,13vw,92px);line-height:1;
+    letter-spacing:-.03em;
+    background:linear-gradient(180deg,#fff, var(--aqua));-webkit-background-clip:text;background-clip:text;color:transparent;
+    font-variant-numeric:tabular-nums;
+  }
+  .counter .lbl{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);max-width:8ch;text-align:left;line-height:1.3}
+
+  /* ---------- winner banner ---------- */
+  .winner{
+    display:none;margin:0 0 26px;border:1px solid var(--gold-2);border-radius:16px;
+    background:linear-gradient(180deg, rgba(245,196,81,.12), rgba(245,196,81,.03));
+    padding:18px 20px;text-align:center;position:relative;overflow:hidden;
+  }
+  .winner.show{display:block;animation:pop .5s ease}
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+  .winner .wl{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+  .winner .wn{font-family:"Sora";font-weight:800;font-size:clamp(22px,5vw,34px);margin:6px 0 2px}
+  .winner .wo{color:var(--muted);font-size:14px}
+
+  /* ---------- board ---------- */
+  .board-wrap{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--abyss-2));overflow:hidden}
+  .board-top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--line);
+  }
+  .board-top h2{font-family:"Sora";font-weight:700;font-size:15px;margin:0;letter-spacing:.02em}
+  .board-top .hint{font-family:"JetBrains Mono";font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .wire{height:2px;background:linear-gradient(90deg,transparent,var(--aqua),transparent);opacity:.5;
+    background-size:220px 100%;animation:wire 3.2s linear infinite}
+  @keyframes wire{0%{background-position:-220px 0}100%{background-position:960px 0}}
+
+  ul.rows{list-style:none;margin:0;padding:0}
+  li.row{
+    display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;
+    padding:16px 20px;border-bottom:1px solid var(--line);
+  }
+  li.row:last-child{border-bottom:none}
+  li.row.enter{animation:slidein .55s cubic-bezier(.2,.8,.2,1)}
+  @keyframes slidein{
+    0%{opacity:0;transform:translateY(-14px);background:var(--stamp)}
+    100%{opacity:1;transform:translateY(0);background:transparent}
+  }
+  .rmain{min-width:0}
+  .pname{font-family:"Sora";font-weight:700;font-size:18px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .pname a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .pname a:hover{border-bottom-color:var(--aqua)}
+  .meta{margin-top:4px;color:var(--muted);font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .meta .sep{opacity:.4}
+  .meta .country{color:var(--text)}
+  .rside{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .stamp{
+    font-family:"JetBrains Mono";font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold);border:1px solid var(--gold-2);background:var(--stamp);border-radius:999px;padding:5px 11px;white-space:nowrap;
+  }
+  .time{font-family:"JetBrains Mono";font-size:12px;color:var(--muted)}
+
+  .empty{padding:46px 20px;text-align:center;color:var(--muted)}
+  .empty .big{font-family:"Sora";font-weight:700;color:var(--text);font-size:17px;margin-bottom:6px}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;top:24px;transform:translateX(-50%) translateY(-24px);
+    display:flex;align-items:center;gap:13px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--aqua-dim);border-radius:14px;padding:14px 20px;
+    box-shadow:0 16px 50px rgba(0,0,0,.55), 0 0 30px rgba(47,224,198,.12);
+    opacity:0;pointer-events:none;transition:opacity .3s ease, transform .3s ease;z-index:40;max-width:92vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--stamp);color:var(--gold);font-size:18px;flex:none}
+  .toast .t1{font-family:"Sora";font-weight:700;font-size:15px}
+  .toast .t2{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--aqua);margin-top:2px}
+
+  .foot{margin-top:22px;text-align:center;color:var(--muted);font-size:12px;font-family:"JetBrains Mono";letter-spacing:.06em}
+
+  /* ---- Enter the Lottery ---- */
+  .enter-btn{
+    margin:30px auto 0;display:block;font-family:"Sora";font-weight:700;font-size:16px;cursor:pointer;
+    color:#04120f;border:none;border-radius:12px;padding:14px 26px;
+    background:linear-gradient(180deg,var(--gold),var(--gold-2));
+    box-shadow:0 8px 30px rgba(245,196,81,.22);transition:transform .12s ease;
+  }
+  .enter-btn:hover{transform:translateY(-2px)}
+  .enter-btn:active{transform:none}
+  .overlay{display:none;position:fixed;inset:0;z-index:60;background:rgba(3,8,7,.78);
+    align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+  .overlay.show{display:flex}
+  .sheet{position:relative;width:100%;max-width:440px;max-height:92vh;overflow:auto;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:18px;padding:26px 24px}
+  .sheet-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);
+    font-size:26px;line-height:1;cursor:pointer}
+  .sheet-x:hover{color:var(--text)}
+  .sheet-h{font-family:"Sora";font-weight:800;font-size:24px;margin:0 0 6px}
+  .sheet-sub{color:var(--muted);font-size:14px;margin:0 0 20px}
+  .sheet label{display:block;font-family:"JetBrains Mono";font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .sheet input{display:block;width:100%;margin-top:6px;background:var(--abyss);border:1px solid var(--line);
+    color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;font-size:15px;font-family:"Inter"}
+  .sheet input:focus{outline:2px solid var(--aqua);outline-offset:1px}
+  .submit-btn{width:100%;margin-top:6px;font-family:"Sora";font-weight:700;font-size:15px;cursor:pointer;
+    color:#04120f;border:none;border-radius:11px;padding:13px;background:linear-gradient(180deg,var(--aqua),var(--aqua-dim));transition:transform .1s}
+  .submit-btn:hover{transform:translateY(-1px)}
+  .submit-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .err{color:var(--coral);font-size:13px;min-height:18px;margin:2px 0 8px}
+  .done{display:none;text-align:center;padding:10px 0}
+  .done.show{display:block}
+  #enterForm.hide{display:none}
+  .done-ic{width:56px;height:56px;margin:6px auto 14px;border-radius:50%;display:grid;place-items:center;
+    font-size:26px;color:var(--aqua);border:2px solid var(--aqua-dim);background:rgba(47,224,198,.08)}
+  .done-h{font-family:"Sora";font-weight:800;font-size:20px;margin-bottom:8px}
+  .done-sub{color:var(--muted);font-size:14px;margin:0 0 20px}
+
+  @media (max-width:520px){
+    li.row{grid-template-columns:1fr;align-items:start}
+    .rside{flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="top">
+      <div class="logo">
+        <svg class="fin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 19c4-1 6-2 8-6C13 6 17 3 21 3c-1 6-3 11-7 13-3 1.6-7 2.4-11 3z" fill="currentColor"/></svg>
+        Sharker
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="live"><span class="dot"></span> Live</span>
+      </div>
+    </div>
+
+    <header class="hero">
+      <span class="prize-chip">◆ iPad Giveaway · Live at the Conference</span>
+      <h1 class="head">Launch Your Casino.<br><span class="a">Get On The Board.</span> <span class="g">Win An iPad.</span></h1>
+      <p class="subhead">Every platform launched from Sharker lands here instantly and is entered into the draw. One winner takes the iPad, drawn live on stage.</p>
+      <div class="counter">
+        <span class="n" id="count">0</span>
+        <span class="lbl">Platforms Launched</span>
+      </div>
+      <button class="enter-btn" id="openEnter">Enter the Lottery →</button>
+    </header>
+
+    <div class="overlay" id="enterOverlay">
+      <div class="sheet">
+        <button class="sheet-x" id="closeEnter" aria-label="Close">×</button>
+        <h2 class="sheet-h">Enter the Lottery</h2>
+        <p class="sheet-sub">Submit your white-label to enter the iPad giveaway. Entries are reviewed before they appear on the board.</p>
+        <div id="enterForm">
+          <label>Casino name *<input id="e_casino" maxlength="60" placeholder="Your casino name" /></label>
+          <label>White-label domain *<input id="e_domain" maxlength="120" placeholder="yourcasino.example.com" /></label>
+          <label>Your name *<input id="e_name" maxlength="60" placeholder="Full name" /></label>
+          <label>Email *<input id="e_email" type="email" maxlength="120" placeholder="you@email.com" /></label>
+          <label>Country *<input id="e_country" maxlength="56" placeholder="Country" /></label>
+          <div class="err" id="enterErr"></div>
+          <button class="submit-btn" id="submitEnter">Submit entry</button>
+        </div>
+        <div id="enterDone" class="done">
+          <div class="done-ic">✓</div>
+          <div class="done-h">Submitted — pending approval</div>
+          <p class="done-sub">Thanks! Your entry is in review. A confirmation email is on its way. Once approved, you'll appear on the board and be entered into the iPad draw.</p>
+          <button class="submit-btn ghost" id="enterAgain">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="winner" id="winner">
+      <div class="wl">🏆 iPad Winner</div>
+      <div class="wn" id="winnerName">—</div>
+      <div class="wo" id="winnerOwner"></div>
+    </div>
+
+    <section class="board-wrap">
+      <div class="board-top">
+        <h2>Latest Launches</h2>
+        <span class="hint">Newest first · updates live</span>
+      </div>
+      <div class="wire"></div>
+      <ul class="rows" id="rows"></ul>
+    </section>
+
+    <p class="foot">Sharker Partners · sharker.com/partners</p>
+  </div>
+
+  <div class="toast" id="toast">
+    <div class="ic">🦈</div>
+    <div>
+      <div class="t1" id="toastName">New Casino Launched</div>
+      <div class="t2">Entered Into iPad Giveaway</div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const rowsEl = document.getElementById('rows');
+  const countEl = document.getElementById('count');
+  const toastEl = document.getElementById('toast');
+  const toastName = document.getElementById('toastName');
+  const winnerEl = document.getElementById('winner');
+
+  let launches = [];
+
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function ago(iso){
+    const s = Math.floor((Date.now()-new Date(iso).getTime())/1000);
+    if(isNaN(s)) return '';
+    if(s<5) return 'just now';
+    if(s<60) return s+'s ago';
+    const m=Math.floor(s/60); if(m<60) return m+'m ago';
+    const h=Math.floor(m/60); if(h<24) return h+'h ago';
+    return Math.floor(h/24)+'d ago';
+  }
+  function clockTime(iso){
+    const d=new Date(iso); if(isNaN(d)) return '';
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function rowHTML(x){
+    const name = x.platformUrl
+      ? '<a href="'+esc(x.platformUrl)+'" target="_blank" rel="noopener">'+esc(x.platformName)+'</a>'
+      : esc(x.platformName);
+    const bits=[];
+    if(x.ownerName) bits.push(esc(x.ownerName));
+    if(x.country) bits.push('<span class="country">'+esc(x.country)+'</span>');
+    const meta = bits.join(' <span class="sep">•</span> ');
+    return '<div class="rmain">'
+      + '<div class="pname">'+name+'</div>'
+      + (meta? '<div class="meta">'+meta+'</div>':'')
+      + '</div>'
+      + '<div class="rside">'
+      +   '<span class="stamp">✓ Entered</span>'
+      +   '<span class="time">'+ clockTime(x.launchTime||x.createdAt) +' · '+ ago(x.createdAt) +'</span>'
+      + '</div>';
+  }
+
+  function render(){
+    countEl.textContent = launches.length;
+    if(!launches.length){
+      rowsEl.innerHTML = '<li class="empty"><div class="big">No platforms launched yet.</div></li>';
+      return;
+    }
+    rowsEl.innerHTML = launches.map(x=>'<li class="row" data-id="'+x.id+'">'+rowHTML(x)+'</li>').join('');
+  }
+
+  function prepend(x, animate){
+    if(launches.some(l=>l.id===x.id)) return;
+    launches.unshift(x);
+    countEl.textContent = launches.length;
+    const li = document.createElement('li');
+    li.className = 'row' + (animate?' enter':'');
+    li.dataset.id = x.id;
+    li.innerHTML = rowHTML(x);
+    const empty = rowsEl.querySelector('.empty');
+    if(empty) rowsEl.innerHTML='';
+    rowsEl.prepend(li);
+    if(animate) showToast(x.platformName);
+  }
+
+  function removeRow(id){
+    launches = launches.filter(l=>l.id!==id);
+    const li = rowsEl.querySelector('[data-id="'+id+'"]');
+    if(li) li.remove();
+    countEl.textContent = launches.length;
+    if(!launches.length) render();
+  }
+
+  let toastTimer;
+  function showToast(name){
+    toastName.textContent = name ? name+' Launched' : 'New Casino Launched';
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2600);
+  }
+
+  function showWinner(w){
+    if(!w) return;
+    document.getElementById('winnerName').textContent = w.platformName;
+    document.getElementById('winnerOwner').textContent =
+      [w.ownerName, w.country].filter(Boolean).join(' • ');
+    winnerEl.classList.add('show');
+  }
+
+  // refresh relative times periodically
+  setInterval(()=>{ document.querySelectorAll('.time').forEach((el,i)=>{
+    const x=launches[i]; if(x) el.textContent = clockTime(x.launchTime||x.createdAt)+' · '+ago(x.createdAt);
+  }); }, 15000);
+
+  // ---- live connection ----
+  function connectSSE(){
+    try{
+      const es = new EventSource('/api/stream');
+      es.addEventListener('launch', e=> prepend(JSON.parse(e.data), true));
+      es.addEventListener('delete', e=> removeRow(JSON.parse(e.data).id));
+      es.addEventListener('winner', e=> showWinner(JSON.parse(e.data)));
+      es.addEventListener('update', e=>{
+        const u=JSON.parse(e.data); const i=launches.findIndex(l=>l.id===u.id);
+        if(i>-1){ launches[i]=u; const li=rowsEl.querySelector('[data-id="'+u.id+'"]'); if(li) li.innerHTML=rowHTML(u); }
+      });
+    }catch(_){}
+  }
+
+  // ---- boot: real data only, straight from the API ----
+  fetch('/api/launches')
+    .then(r=>{ if(!r.ok) throw new Error('api'); return r.json(); })
+    .then(d=>{
+      launches = Array.isArray(d.launches) ? d.launches : [];
+      render();
+      connectSSE();
+      fetch('/api/winner').then(r=>r.json()).then(d=>showWinner(d.winner)).catch(()=>{});
+    })
+    .catch(()=>{
+      // no data source reachable — show the real empty state, never sample data
+      launches = [];
+      render();
+      connectSSE();
+    });
+  // ---- Enter the Lottery form ----
+  const ov = document.getElementById('enterOverlay');
+  const openEnter = () => { ov.classList.add('show'); };
+  const closeEnter = () => {
+    ov.classList.remove('show');
+    document.getElementById('enterForm').classList.remove('hide');
+    document.getElementById('enterDone').classList.remove('show');
+    document.getElementById('enterErr').textContent = '';
+  };
+  document.getElementById('openEnter').addEventListener('click', openEnter);
+  document.getElementById('closeEnter').addEventListener('click', closeEnter);
+  document.getElementById('enterAgain').addEventListener('click', closeEnter);
+  ov.addEventListener('click', e => { if (e.target === ov) closeEnter(); });
+
+  document.getElementById('submitEnter').addEventListener('click', async () => {
+    const val = id => document.getElementById(id).value.trim();
+    const payload = {
+      casinoName: val('e_casino'), domain: val('e_domain'),
+      name: val('e_name'), email: val('e_email'), country: val('e_country'),
+    };
+    const errEl = document.getElementById('enterErr');
+    if (!payload.casinoName) return errEl.textContent = 'Casino name is required.';
+    if (!payload.domain) return errEl.textContent = 'White-label domain is required.';
+    if (!payload.name) return errEl.textContent = 'Your name is required.';
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) return errEl.textContent = 'Enter a valid email.';
+    if (!payload.country) return errEl.textContent = 'Country is required.';
+    errEl.textContent = '';
+    const btn = document.getElementById('submitEnter');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      const r = await fetch('/api/enter', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || 'Submission failed'); }
+      document.getElementById('enterForm').classList.add('hide');
+      document.getElementById('enterDone').classList.add('show');
+      ['e_casino','e_domain','e_name','e_email','e_country'].forEach(i => document.getElementById(i).value = '');
+    } catch (e) {
+      errEl.textContent = e.message;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit entry';
+    }
+  });
+})();
+</script>
+</body>
+</html>

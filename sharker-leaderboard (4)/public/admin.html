@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sharker · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --abyss:#050e0c;--panel:#0b1a16;--panel-2:#0f231d;--line:#173029;
+    --aqua:#2fe0c6;--aqua-dim:#1b7d6f;--gold:#f5c451;--gold-2:#c9962f;--coral:#ff6b5e;
+    --text:#eaf4f0;--muted:#6f867d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1000px 500px at 85% -10%,rgba(47,224,198,.08),transparent 55%),var(--abyss);
+    color:var(--text);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .shell{max-width:960px;margin:0 auto;padding:26px 20px 80px}
+  a{color:var(--aqua)}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:"Sora";font-weight:800;font-size:18px}
+  .fin{width:24px;height:24px;color:var(--aqua)}
+  .tag{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .card{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--abyss));padding:22px;margin-bottom:20px}
+  .card h2{font-family:"Sora";font-weight:700;font-size:16px;margin:0 0 16px}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;font-family:"JetBrains Mono";letter-spacing:.06em;text-transform:uppercase}
+  input,select{width:100%;background:var(--abyss);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:11px 13px;font:inherit;font-size:14px}
+  input:focus,select:focus{outline:2px solid var(--aqua);outline-offset:1px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .field{margin-bottom:14px}
+
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);padding:11px 16px;font-weight:600;font-size:14px;transition:transform .1s,border-color .12s,background .12s}
+  button:hover{transform:translateY(-1px);border-color:var(--aqua-dim)}
+  button:active{transform:none}
+  button.primary{background:linear-gradient(180deg,var(--aqua),var(--aqua-dim));border-color:transparent;color:#04120f;font-weight:700}
+  button.gold{background:linear-gradient(180deg,var(--gold),var(--gold-2));border-color:transparent;color:#1b1405;font-weight:700}
+  button.ghost{background:transparent}
+  button.danger{border-color:transparent;background:transparent;color:var(--coral);padding:7px 10px}
+  button.danger:hover{background:rgba(255,107,94,.1)}
+  button.mini{padding:7px 12px;font-size:13px}
+
+  .gate{max-width:420px;margin:60px auto;text-align:center}
+  .gate .fin{width:40px;height:40px;margin-bottom:14px}
+  .gate h1{font-family:"Sora";font-weight:800;font-size:26px;margin:0 0 8px}
+  .gate p{color:var(--muted);margin:0 0 20px;font-size:14px}
+  .err{color:var(--coral);font-size:13px;min-height:18px;margin-top:8px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-family:"JetBrains Mono";font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 10px 10px;border-bottom:1px solid var(--line)}
+  td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  td .pn{font-weight:600}
+  td .sm{color:var(--muted);font-size:12px;font-family:"JetBrains Mono"}
+  .actions{display:flex;gap:6px;justify-content:flex-end}
+  .stat{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:16px}
+  .stat .b{font-family:"Sora";font-weight:800;font-size:30px;color:var(--aqua)}
+  .stat .l{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+  .winnerBox{display:none;border:1px solid var(--gold-2);border-radius:14px;background:linear-gradient(180deg,rgba(245,196,81,.12),rgba(245,196,81,.02));padding:18px;margin-top:16px;text-align:center}
+  .winnerBox.show{display:block}
+  .winnerBox .wn{font-family:"Sora";font-weight:800;font-size:24px;margin:6px 0}
+  .winnerBox .wl{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .winnerBox .wc{color:var(--muted);font-size:13px;margin-top:4px}
+
+  /* modal */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(3,8,7,.72);z-index:50;align-items:center;justify-content:center;padding:20px}
+  .overlay.show{display:flex}
+  .modal{width:100%;max-width:520px;max-height:90vh;overflow:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:22px}
+  .modal h3{font-family:"Sora";margin:0 0 16px}
+  .modal .row2{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(16px);background:var(--panel-2);border:1px solid var(--aqua-dim);color:var(--text);padding:11px 18px;border-radius:11px;font-size:14px;opacity:0;transition:.25s;z-index:60}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top">
+    <div class="logo"><svg class="fin" viewBox="0 0 24 24" fill="none"><path d="M3 19c4-1 6-2 8-6C13 6 17 3 21 3c-1 6-3 11-7 13-3 1.6-7 2.4-11 3z" fill="currentColor"/></svg> Sharker Admin</div>
+    <a class="tag" href="/">← View public board</a>
+  </div>
+
+  <!-- gate -->
+  <div id="gate" class="gate">
+    <svg class="fin" viewBox="0 0 24 24" fill="none"><path d="M3 19c4-1 6-2 8-6C13 6 17 3 21 3c-1 6-3 11-7 13-3 1.6-7 2.4-11 3z" fill="currentColor"/></svg>
+    <h1>Admin access</h1>
+    <p>Enter your admin key to manage launches.</p>
+    <div class="field"><input id="keyInput" type="password" placeholder="Admin key" /></div>
+    <button class="primary" id="unlock" style="width:100%">Unlock</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+
+  <!-- panel -->
+  <div id="panel" style="display:none">
+    <div class="card">
+      <div class="stat">
+        <div><div class="b" id="statTotal">0</div><div class="l">Total Entries</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="gold" id="drawBtn">🎁 Pick iPad Winner</button>
+        <button id="exportBtn">⬇ Download all launchers (CSV)</button>
+      </div>
+      <div class="winnerBox" id="winnerBox">
+        <div class="wl">🏆 Winner</div>
+        <div class="wn" id="wName">—</div>
+        <div class="wc" id="wContact"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pending approvals <span id="pendingCount" class="tag" style="margin-left:6px"></span></h2>
+      <div id="pendingWrap">
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>Casino / Domain</th><th>Person</th><th>Contact</th><th></th></tr></thead>
+          <tbody id="pendingBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Add a launch</h2>
+      <div class="grid">
+        <div class="field"><label>Platform name *</label><input id="f_platformName" placeholder="Platform name" /></div>
+        <div class="field"><label>Owner name</label><input id="f_ownerName" placeholder="Owner name" /></div>
+        <div class="field"><label>Country</label><input id="f_country" placeholder="Country" /></div>
+        <div class="field"><label>Platform URL</label><input id="f_platformUrl" placeholder="https://..." /></div>
+        <div class="field"><label>Email</label><input id="f_email" placeholder="name@example.com" /></div>
+        <div class="field"><label>Wallet</label><input id="f_wallet" placeholder="0x..." /></div>
+      </div>
+      <button class="primary" id="addBtn">Add launch</button>
+    </div>
+
+    <div class="card">
+      <h2>All launches</h2>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Platform</th><th>Owner / Country</th><th>Contact</th><th>Time</th><th></th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- edit modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>Edit launch</h3>
+    <input type="hidden" id="e_id" />
+    <div class="grid">
+      <div class="field"><label>Platform name</label><input id="e_platformName" /></div>
+      <div class="field"><label>Owner name</label><input id="e_ownerName" /></div>
+      <div class="field"><label>Country</label><input id="e_country" /></div>
+      <div class="field"><label>Platform URL</label><input id="e_platformUrl" /></div>
+      <div class="field"><label>Email</label><input id="e_email" /></div>
+      <div class="field"><label>Wallet</label><input id="e_wallet" /></div>
+    </div>
+    <div class="row2">
+      <button class="ghost" id="e_cancel">Cancel</button>
+      <button class="primary" id="e_save">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  let KEY = '';
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._);t._=setTimeout(()=>t.classList.remove('show'),2200);};
+
+  async function api(path, opts={}){
+    const r = await fetch(path, {
+      ...opts,
+      headers:{'Content-Type':'application/json','x-admin-key':KEY, ...(opts.headers||{})}
+    });
+    if(r.status===401){ throw new Error('unauth'); }
+    return r;
+  }
+
+  async function unlock(){
+    KEY = $('keyInput').value.trim();
+    if(!KEY) return;
+    try{
+      const r = await api('/api/admin/launches');
+      if(!r.ok) throw new Error();
+      $('gate').style.display='none';
+      $('panel').style.display='block';
+      const d = await r.json();
+      renderTable(d.launches, d.total);
+      loadWinner();
+    }catch(e){
+      $('gateErr').textContent = 'Invalid key. Try again.';
+    }
+  }
+
+  function fmt(iso){ const d=new Date(iso); return isNaN(d)?'':d.toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+  function renderTable(list, total){
+    const pending = list.filter(x => x.status === 'Pending');
+    const rest = list.filter(x => x.status !== 'Pending');
+    $('statTotal').textContent = rest.filter(x => x.status === 'Entered').length;
+
+    // pending approvals
+    $('pendingCount').textContent = pending.length ? pending.length + ' waiting' : '';
+    const pb = $('pendingBody');
+    if (!pending.length) {
+      pb.innerHTML = '<tr><td colspan="4" style="color:var(--muted);padding:18px 10px">Nothing waiting for review.</td></tr>';
+    } else {
+      pb.innerHTML = pending.map(x => (
+        '<tr data-id="'+x.id+'">'
+        +'<td><div class="pn">'+esc(x.platformName)+'</div><div class="sm">'+esc(x.platformUrl||'')+'</div></td>'
+        +'<td>'+esc(x.ownerName||'—')+'<div class="sm">'+esc(x.country||'')+'</div></td>'
+        +'<td class="sm">'+esc(x.email||'—')+'</td>'
+        +'<td><div class="actions">'
+        +'<button class="mini primary" data-approve="'+x.id+'">Approve</button>'
+        +'<button class="danger mini" data-reject="'+x.id+'">Reject</button></div></td>'
+        +'</tr>'
+      )).join('');
+    }
+
+    // all other entries
+    const tb = $('tbody');
+    if (!rest.length) { tb.innerHTML = '<tr><td colspan="5" style="color:var(--muted);padding:24px 10px">No launches yet.</td></tr>'; return; }
+    tb.innerHTML = rest.map(x => {
+      const badge = x.status === 'Entered'
+        ? '<span class="sm" style="color:var(--aqua)">● Live</span>'
+        : '<span class="sm" style="color:var(--coral)">● '+esc(x.status)+'</span>';
+      return '<tr data-id="'+x.id+'">'
+        +'<td><div class="pn">'+esc(x.platformName)+'</div>'+(x.platformUrl?'<div class="sm">'+esc(x.platformUrl)+'</div>':'')+'<div>'+badge+'</div></td>'
+        +'<td>'+esc(x.ownerName||'—')+'<div class="sm">'+esc(x.country||'')+'</div></td>'
+        +'<td class="sm">'+esc(x.email||'—')+(x.wallet?'<br>'+esc(x.wallet):'')+'</td>'
+        +'<td class="sm">'+fmt(x.launchTime||x.createdAt)+'</td>'
+        +'<td><div class="actions"><button class="mini ghost" data-edit="'+x.id+'">Edit</button>'
+        +'<button class="danger mini" data-del="'+x.id+'">Delete</button></div></td>'
+        +'</tr>';
+    }).join('');
+  }
+
+  async function refresh(){
+    const r = await api('/api/admin/launches'); const d = await r.json();
+    renderTable(d.launches, d.total);
+  }
+
+  async function add(){
+    const body = {
+      platformName:$('f_platformName').value.trim(),
+      ownerName:$('f_ownerName').value.trim(),
+      country:$('f_country').value.trim(),
+      platformUrl:$('f_platformUrl').value.trim(),
+      email:$('f_email').value.trim(),
+      wallet:$('f_wallet').value.trim(),
+    };
+    if(!body.platformName){ toast('Platform name is required'); return; }
+    const r = await api('/api/launch', {method:'POST', body:JSON.stringify(body)});
+    if(r.ok){ ['f_platformName','f_ownerName','f_country','f_platformUrl','f_email','f_wallet'].forEach(i=>$(i).value=''); toast('Launch added'); refresh(); }
+    else toast('Could not add launch');
+  }
+
+  function openEdit(id){
+    const r = document.querySelector('tr[data-id="'+id+'"]'); if(!r) return;
+    api('/api/admin/launches').then(x=>x.json()).then(d=>{
+      const x = d.launches.find(l=>l.id===Number(id)); if(!x) return;
+      $('e_id').value=x.id;
+      $('e_platformName').value=x.platformName||'';
+      $('e_ownerName').value=x.ownerName||'';
+      $('e_country').value=x.country||'';
+      $('e_platformUrl').value=x.platformUrl||'';
+      $('e_email').value=x.email||'';
+      $('e_wallet').value=x.wallet||'';
+      $('overlay').classList.add('show');
+    });
+  }
+  async function saveEdit(){
+    const id=$('e_id').value;
+    const body={
+      platformName:$('e_platformName').value.trim(),
+      ownerName:$('e_ownerName').value.trim(),
+      country:$('e_country').value.trim(),
+      platformUrl:$('e_platformUrl').value.trim(),
+      email:$('e_email').value.trim(),
+      wallet:$('e_wallet').value.trim(),
+    };
+    const r = await api('/api/launch/'+id, {method:'PUT', body:JSON.stringify(body)});
+    if(r.ok){ $('overlay').classList.remove('show'); toast('Saved'); refresh(); }
+    else toast('Save failed');
+  }
+  async function del(id){
+    if(!confirm('Delete this launch? This removes it from the giveaway.')) return;
+    const r = await api('/api/launch/'+id, {method:'DELETE'});
+    if(r.ok){ toast('Deleted'); refresh(); } else toast('Delete failed');
+  }
+
+  async function draw(){
+    const r = await api('/api/draw', {method:'POST'});
+    if(!r.ok){ const e=await r.json().catch(()=>({})); toast(e.error||'Cannot draw'); return; }
+    const d = await r.json(); showWinner(d.winner);
+  }
+  function showWinner(w){
+    if(!w) return;
+    $('wName').textContent = w.platformName;
+    $('wContact').textContent = [w.ownerName, w.country, w.email].filter(Boolean).join(' • ');
+    $('winnerBox').classList.add('show');
+  }
+  async function loadWinner(){
+    try{ const d = await (await fetch('/api/winner')).json(); if(d.winner) showWinner(d.winner); }catch{}
+  }
+
+  async function exportCsv(){
+    const r = await api('/api/export.csv');
+    if(!r.ok){ toast('Export failed'); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sharker-launches-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    toast('CSV downloaded');
+  }
+
+  async function approve(id){
+    const r = await api('/api/launch/'+id+'/approve', {method:'POST'});
+    if(r.ok){ toast('Approved — now live on the board'); refresh(); } else toast('Approve failed');
+  }
+  async function reject(id){
+    if(!confirm('Reject this entry? It stays off the board.')) return;
+    const r = await api('/api/launch/'+id+'/reject', {method:'POST'});
+    if(r.ok){ toast('Rejected'); refresh(); } else toast('Reject failed');
+  }
+
+  // events
+  $('unlock').addEventListener('click', unlock);
+  $('keyInput').addEventListener('keydown', e=>{ if(e.key==='Enter') unlock(); });
+  $('addBtn').addEventListener('click', add);
+  $('drawBtn').addEventListener('click', draw);
+  $('exportBtn').addEventListener('click', exportCsv);
+  $('pendingBody').addEventListener('click', e=>{
+    const ap=e.target.getAttribute('data-approve'); const rj=e.target.getAttribute('data-reject');
+    if(ap) approve(ap); if(rj) reject(rj);
+  });
+  $('e_cancel').addEventListener('click', ()=>$('overlay').classList.remove('show'));
+  $('e_save').addEventListener('click', saveEdit);
+  $('tbody').addEventListener('click', e=>{
+    const ed=e.target.getAttribute('data-edit'); const dl=e.target.getAttribute('data-del');
+    if(ed) openEdit(ed); if(dl) del(dl);
+  });
+})();
+</script>
+</body>
+</html>

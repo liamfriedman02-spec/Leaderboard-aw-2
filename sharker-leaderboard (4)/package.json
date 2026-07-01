@@ -1,0 +1,17 @@
+{
+  "name": "sharker-launch-leaderboard",
+  "version": "1.0.0",
+  "description": "Live launch leaderboard for Sharker — launch a casino, get on the board, win an iPad.",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --experimental-sqlite server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemailer": "^6.9.16"
+  }
+}
